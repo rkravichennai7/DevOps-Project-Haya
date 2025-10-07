@@ -1,0 +1,27 @@
+name: 'Deploy Frontend to Azure App Service'
+on:
+  push:
+    paths:
+      - 'apps/frontend/**'
+      - '.github/workflows/frontend.yml'
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Build frontend
+        run: |
+          cd apps/frontend
+          npm install
+          npm run build
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: 'bbapp-frontend'
+          slot-name: 'production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_FRONTEND_PUBLISH_PROFILE }}
+          package: 'apps/frontend/dist'
